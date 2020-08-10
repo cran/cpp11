@@ -1,16 +1,18 @@
 #pragma once
 
-#include <stddef.h>                   // for ptrdiff_t, size_t
-#include <algorithm>                  // for max
-#include <array>                      // for array
-#include <cstdio>                     // for snprintf
-#include <exception>                  // for exception
-#include <initializer_list>           // for initializer_list
-#include <iterator>                   // for forward_iterator_tag, random_ac...
-#include <stdexcept>                  // for out_of_range
-#include <string>                     // for string, basic_string
-#include <type_traits>                // for decay, is_same, enable_if, is_c...
-#include <utility>                    // for declval
+#include <stddef.h>  // for ptrdiff_t, size_t
+
+#include <algorithm>         // for max
+#include <array>             // for array
+#include <cstdio>            // for snprintf
+#include <exception>         // for exception
+#include <initializer_list>  // for initializer_list
+#include <iterator>          // for forward_iterator_tag, random_ac...
+#include <stdexcept>         // for out_of_range
+#include <string>            // for string, basic_string
+#include <type_traits>       // for decay, is_same, enable_if, is_c...
+#include <utility>           // for declval
+
 #include "cpp11/R.hpp"                // for R_xlen_t, SEXP, SEXPREC, Rf_xle...
 #include "cpp11/attribute_proxy.hpp"  // for attribute_proxy
 #include "cpp11/protect.hpp"          // for protect_sexp, release_protect
@@ -61,16 +63,16 @@ class r_vector {
   r_vector(SEXP data, bool is_altrep);
 
 #ifdef LONG_VECTOR_SUPPORT
-  const T operator[](const int pos) const;
-  const T at(const int pos) const;
+  T operator[](const int pos) const;
+  T at(const int pos) const;
 #endif
-  const T operator[](const R_xlen_t pos) const;
-  const T operator[](const size_type pos) const;
-  const T operator[](const r_string& name) const;
+  T operator[](const R_xlen_t pos) const;
+  T operator[](const size_type pos) const;
+  T operator[](const r_string& name) const;
 
-  const T at(const R_xlen_t pos) const;
-  const T at(const size_type pos) const;
-  const T at(const r_string& name) const;
+  T at(const R_xlen_t pos) const;
+  T at(const size_type pos) const;
+  T at(const r_string& name) const;
 
   bool contains(const r_string& name) const;
 
@@ -491,7 +493,7 @@ inline typename r_vector<T>::const_iterator& r_vector<T>::const_iterator::operat
 }
 
 template <typename T>
-inline const T cpp11::r_vector<T>::at(R_xlen_t pos) const {
+inline T cpp11::r_vector<T>::at(R_xlen_t pos) const {
   if (pos < 0 || pos >= length_) {
     throw std::out_of_range("r_vector");
   }
@@ -500,12 +502,12 @@ inline const T cpp11::r_vector<T>::at(R_xlen_t pos) const {
 }
 
 template <typename T>
-inline const T cpp11::r_vector<T>::at(size_type pos) const {
+inline T cpp11::r_vector<T>::at(size_type pos) const {
   return at(static_cast<R_xlen_t>(pos));
 }
 
 template <typename T>
-inline const T cpp11::r_vector<T>::operator[](const r_string& name) const {
+inline T cpp11::r_vector<T>::operator[](const r_string& name) const {
   SEXP names = this->names();
   R_xlen_t size = Rf_xlength(names);
 
@@ -561,18 +563,18 @@ inline T r_vector<T>::const_iterator::operator*() {
 
 #ifdef LONG_VECTOR_SUPPORT
 template <typename T>
-inline const T r_vector<T>::operator[](const int pos) const {
+inline T r_vector<T>::operator[](const int pos) const {
   return operator[](static_cast<R_xlen_t>(pos));
 }
 
 template <typename T>
-inline const T r_vector<T>::at(const int pos) const {
+inline T r_vector<T>::at(const int pos) const {
   return at(static_cast<R_xlen_t>(pos));
 }
 #endif
 
 template <typename T>
-inline const T r_vector<T>::operator[](size_type pos) const {
+inline T r_vector<T>::operator[](size_type pos) const {
   return operator[](static_cast<R_xlen_t>(pos));
 }
 
@@ -695,7 +697,7 @@ inline typename r_vector<T>::proxy r_vector<T>::operator[](const R_xlen_t pos) c
   if (is_altrep_) {
     return {data_, pos, nullptr, true};
   }
-  return {data_, pos, &data_p_[pos], false};
+  return {data_, pos, data_p_ != nullptr ? &data_p_[pos] : nullptr, false};
 }
 
 template <typename T>

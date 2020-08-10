@@ -9,6 +9,7 @@ should_run_benchmarks <- function(x) {
 }
 
 ## ---- message = FALSE, eval = should_run_benchmarks()-------------------------
+#  library(cpp11test)
 #  grid <- expand.grid(len = 10 ^ (0:7), pkg = "cpp11", stringsAsFactors = FALSE)
 #  grid <- rbind(
 #    grid,

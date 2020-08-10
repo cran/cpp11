@@ -1,7 +1,8 @@
 #pragma once
 
-#include <initializer_list>           // for initializer_list
-#include <string>                     // for string, basic_string
+#include <initializer_list>  // for initializer_list
+#include <string>            // for string, basic_string
+
 #include "cpp11/R.hpp"                // for SEXP, TYPEOF, SEXPREC, SET_STRI...
 #include "cpp11/as.hpp"               // for as_sexp
 #include "cpp11/attribute_proxy.hpp"  // for attribute_proxy
@@ -24,7 +25,7 @@ inline SEXP r_vector<r_string>::valid_type(SEXP data) {
 }
 
 template <>
-inline const r_string r_vector<r_string>::operator[](const R_xlen_t pos) const {
+inline r_string r_vector<r_string>::operator[](const R_xlen_t pos) const {
   // NOPROTECT: likely too costly to unwind protect every elt
   return STRING_ELT(data_, pos);
 }
@@ -123,19 +124,24 @@ template <>
 inline r_vector<r_string>::r_vector(std::initializer_list<named_arg> il)
     : cpp11::r_vector<r_string>(safe[Rf_allocVector](STRSXP, il.size())),
       capacity_(il.size()) {
+  protect_ = protect_sexp(data_);
+  int n_protected = 0;
+
   try {
     unwind_protect([&] {
-      protect_ = protect_sexp(data_);
-      attr("names") = Rf_allocVector(STRSXP, capacity_);
-      sexp names(attr("names"));
+      Rf_setAttrib(data_, R_NamesSymbol, Rf_allocVector(STRSXP, capacity_));
+      SEXP names = PROTECT(Rf_getAttrib(data_, R_NamesSymbol));
+      ++n_protected;
       auto it = il.begin();
       for (R_xlen_t i = 0; i < capacity_; ++i, ++it) {
-        SET_STRING_ELT(data_, i, strings(it->value())[0]);
+        SET_STRING_ELT(data_, i, STRING_ELT(it->value(), 0));
         SET_STRING_ELT(names, i, Rf_mkCharCE(it->name(), CE_UTF8));
       }
+      UNPROTECT(n_protected);
     });
   } catch (const unwind_exception& e) {
     release_protect(protect_);
+    UNPROTECT(n_protected);
     throw e;
   }
 }

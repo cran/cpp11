@@ -1,6 +1,7 @@
 #pragma once
 
-#include <string>             // for string, basic_string
+#include <string>  // for string, basic_string
+
 #include "Rversion.h"         // for R_VERSION, R_Version
 #include "cpp11/R.hpp"        // for SEXP, SEXPREC, Rf_install, Rf_findVarIn...
 #include "cpp11/as.hpp"       // for as_sexp
@@ -30,7 +31,7 @@ class environment {
 
     template <typename T>
     proxy& operator=(T value) {
-      unwind_protect([&] { Rf_defineVar(name_, as_sexp(value), parent_); });
+      safe[Rf_defineVar](name_, as_sexp(value), parent_);
       return *this;
     }
     operator SEXP() const { return safe[Rf_findVarInFrame3](parent_, name_, TRUE); };

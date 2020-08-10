@@ -1,6 +1,7 @@
 #pragma once
 
-#include <initializer_list>           // for initializer_list
+#include <initializer_list>  // for initializer_list
+
 #include "cpp11/R.hpp"                // for SEXP, SEXPREC, SET_VECTOR_ELT
 #include "cpp11/attribute_proxy.hpp"  // for attribute_proxy
 #include "cpp11/named_arg.hpp"        // for named_arg
@@ -22,12 +23,12 @@ inline SEXP r_vector<SEXP>::valid_type(SEXP data) {
 }
 
 template <>
-inline const SEXP r_vector<SEXP>::operator[](const R_xlen_t pos) const {
+inline SEXP r_vector<SEXP>::operator[](const R_xlen_t pos) const {
   return VECTOR_ELT(data_, pos);
 }
 
 template <>
-inline const SEXP r_vector<SEXP>::operator[](const r_string& name) const {
+inline SEXP r_vector<SEXP>::operator[](const r_string& name) const {
   SEXP names = this->names();
   R_xlen_t size = Rf_xlength(names);
 
@@ -48,6 +49,11 @@ inline SEXP* r_vector<SEXP>::get_p(bool, SEXP) {
 template <>
 inline void r_vector<SEXP>::const_iterator::fill_buf(R_xlen_t) {
   return;
+}
+
+template <>
+inline SEXP r_vector<SEXP>::const_iterator::operator*() {
+  return VECTOR_ELT(data_->data(), pos_);
 }
 
 typedef r_vector<SEXP> list;
@@ -80,19 +86,24 @@ template <>
 inline r_vector<SEXP>::r_vector(std::initializer_list<named_arg> il)
     : cpp11::r_vector<SEXP>(safe[Rf_allocVector](VECSXP, il.size())),
       capacity_(il.size()) {
+  protect_ = protect_sexp(data_);
+  int n_protected = 0;
+
   try {
     unwind_protect([&] {
-      protect_ = protect_sexp(data_);
       Rf_setAttrib(data_, R_NamesSymbol, Rf_allocVector(STRSXP, capacity_));
-      sexp nms(names());
+      SEXP names = PROTECT(Rf_getAttrib(data_, R_NamesSymbol));
+      ++n_protected;
       auto it = il.begin();
       for (R_xlen_t i = 0; i < capacity_; ++i, ++it) {
         SET_VECTOR_ELT(data_, i, it->value());
-        SET_STRING_ELT(nms, i, Rf_mkCharCE(it->name(), CE_UTF8));
+        SET_STRING_ELT(names, i, Rf_mkCharCE(it->name(), CE_UTF8));
       }
+      UNPROTECT(n_protected);
     });
   } catch (const unwind_exception& e) {
     release_protect(protect_);
+    UNPROTECT(n_protected);
     throw e;
   }
 }

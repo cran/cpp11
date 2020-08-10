@@ -1,6 +1,7 @@
 #pragma once
 
-#include <string>              // for string
+#include <string>  // for string
+
 #include "cpp11/R.hpp"         // for SEXP, SEXPREC, R_xlen_t, Rboolean, INT...
 #include "cpp11/r_string.hpp"  // for r_string
 #include "cpp11/r_vector.hpp"  // for r_vector
@@ -105,4 +106,4 @@ using strings_matrix = matrix<r_vector<r_string>, r_vector<r_string>::proxy>;
 }  // namespace writable
 
 // TODO: Add tests for Matrix class
-};  // namespace cpp11
+}  // namespace cpp11

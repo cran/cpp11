@@ -41,7 +41,7 @@ Typical bottlenecks that C++ can address include:
 The aim of this vignette is to discuss only those aspects of C++ and cpp11 that are absolutely necessary to help you eliminate bottlenecks in your code.
 We won't spend much time on advanced features like object-oriented programming or templates because the focus is on writing small, self-contained functions, not big programs.
 A working knowledge of C++ is helpful, but not essential.
-Many good tutorials and references are freely available, including <http://www.learncpp.com/> and <https://en.cppreference.com/w/cpp>.
+Many good tutorials and references are freely available, including <https://www.learncpp.com/> and <https://en.cppreference.com/w/cpp>.
 For more advanced topics, the _Effective C++_ series by Scott Meyers is a popular choice.
 
 ### Outline
@@ -635,7 +635,7 @@ The standard template library (STL) provides a set of extremely useful data stru
 This section will explain some of the most important algorithms and data structures and point you in the right direction to learn more.
 I can't teach you everything you need to know about the STL, but hopefully the examples will show you the power of the STL, and persuade you that it's useful to learn more.
 
-If you need an algorithm or data structure that isn't implemented in STL, one place to look is [boost](http://www.boost.org/doc/).
+If you need an algorithm or data structure that isn't implemented in STL, one place to look is [boost](https://www.boost.org/doc/).
 Installing boost on your computer is beyond the scope of this vignette, but once you have it installed, you can use boost data structures and algorithms by including the appropriate header file with (e.g.) `#include <boost/array.hpp>`.
 
 ### Using iterators

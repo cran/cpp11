@@ -32,7 +32,7 @@
 #' # cleanup
 #' unlink(dir, recursive = TRUE)
 cpp_register <- function(path = ".", quiet = FALSE) {
-  stop_unless_installed(c("brio", "cli", "decor", "desc", "glue", "tibble", "vctrs"))
+  stop_unless_installed(get_cpp_register_needs())
 
   r_path <- file.path(path, "R", "cpp11.R")
   cpp_path <- file.path(path, "src", "cpp11.cpp")
@@ -54,7 +54,7 @@ cpp_register <- function(path = ".", quiet = FALSE) {
 
   init <- generate_init_functions(get_registered_functions(all_decorations, "cpp11::init", quiet))
 
-  r_functions <- generate_r_functions(funs, package)
+  r_functions <- generate_r_functions(funs, package, use_package = TRUE)
 
   dir.create(dirname(r_path), recursive = TRUE, showWarnings = FALSE)
 
@@ -84,11 +84,15 @@ cpp_register <- function(path = ".", quiet = FALSE) {
 
   pkg_types <- c(
     file.path(path, "src", paste0(package, "_types.h")),
-    file.path(path, "inst", "include", paste0(package, "_types.h"))
+    file.path(path, "src", paste0(package, "_types.hpp")),
+    file.path(path, "inst", "include", paste0(package, "_types.h")),
+    file.path(path, "inst", "include", paste0(package, "_types.hpp"))
   )
-  if (any(file.exists(pkg_types))) {
+
+  pkg_types_exist <- file.exists(pkg_types)
+  if (any(pkg_types_exist)) {
     extra_includes <- c(
-      sprintf('#include "%s"', basename(pkg_types[[1]])),
+      sprintf('#include "%s"', basename(pkg_types[pkg_types_exist])),
       extra_includes
     )
   }
@@ -261,4 +265,9 @@ pkg_links_to_rcpp <- function(path) {
   deps <- desc::desc_get_deps(file.path(path, "DESCRIPTION"))
 
   any(deps$type == "LinkingTo" & deps$package == "Rcpp")
+}
+
+get_cpp_register_needs <- function() {
+  res <- read.dcf(system.file("DESCRIPTION", package = "cpp11"))[, "Config/Needs/cpp11/cpp_register"]
+  strsplit(res, "[[:space:]]*,[[:space:]]*")[[1]]
 }

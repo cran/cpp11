@@ -392,7 +392,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h3>Protect list</h3>
 <p>cpp11 uses an idea proposed by <a href="https://github.com/RcppCore/Rcpp/issues/1081#issuecomment-630330838">Luke Tierney</a> to use a double linked list with the head preserved to protect objects cpp11 is protecting.</p>
 <p>Each node in the list uses the head (<code>CAR</code>) part to point to the previous node, and the <code>CDR</code> part to point to the next node. The <code>TAG</code> is used to point to the object being protected. The head and tail of the list have <code>R_NilValue</code> as their <code>CAR</code> and <code>CDR</code> pointers respectively.</p>
-<p>Calling <code>protect_sexp()</code> with a regular R object will add a new node to the list and return a protect token corresponding to the node added. Calling <code>release_protect()</code> on this returned token will release the protection by unlinking the node from the linked list.</p>
+<p>Calling <code>preserved.insert()</code> with a regular R object will add a new node to the list and return a protect token corresponding to the node added. Calling <code>preserved.release()</code> on this returned token will release the protection by unlinking the node from the linked list.</p>
 <p>This scheme scales in O(1) time to release or insert an object vs O(N) or worse time with <code>R_PreserveObject()</code> / <code>R_ReleaseObject()</code>.</p>
 <p>These functions are defined in <a href="https://github.com/r-lib/cpp11/blob/master/inst/include/cpp11/protect.hpp">protect.hpp</a></p>
 </div>
@@ -413,7 +413,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li>Was ruled out partially because the implementation would be somewhat tricky and more because performance would suffer greatly.</li>
 <li>is what we now do in cpp11. It leaks protected objects when there are R API errors.</li>
 </ol>
-<p>If packages are concerned about the leaked memory they can call <code>cpp11::release_existing_protections()</code> as needed to release the current protections for all objects managed by cpp11. This is not done automatically because in some cases the protections should persist beyond the <code>.Call()</code> boundry, e.g. in vroom altrep objects for example.</p>
+<p>If packages are concerned about the leaked memory they can call <code>cpp11::preserved.release_all()</code> as needed to release the current protections for all objects managed by cpp11. This is not done automatically because in some cases the protections should persist beyond the <code>.Call()</code> boundry, e.g. in vroom altrep objects for example.</p>
 </div>
 </div>
 

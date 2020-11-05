@@ -1,7 +1,7 @@
-3cdee6d3ae17869c72314363dbca28cf *DESCRIPTION
+3e6ac81dddcd29b0b47a05be2bc7e7c7 *DESCRIPTION
 5174dfc514f0941d2edd4b0b4c9941dd *LICENSE
 3a9298876794331325c170d77feb1164 *NAMESPACE
-268ec21876e9b2f96284647a45b56969 *NEWS.md
+3c762c6c126897efa440c8b68e5f8d76 *NEWS.md
 b4fe12876c37f8a22cde06e9701eecf0 *R/cpp11-package.R
 48cd72ea70c66c678ff9673a4759f762 *R/knitr.R
 a88adf1d8d8a1290905948ea5a3b5a5c *R/register.R
@@ -9,7 +9,7 @@ a88adf1d8d8a1290905948ea5a3b5a5c *R/register.R
 868737942d1e7242211ce46fc8a431ca *R/utils.R
 d1940a957980425e9ca4abe7332bd9d2 *R/vendor.R
 95e2bfaf26ccf57087023a9537a94cd9 *R/zzz.R
-ba5c9a5b10fdedc861bb09689a7642f8 *README.md
+166583e895fd544fd0885cf6dd630c30 *README.md
 14bdde36aa9a8cc46badc0a70b9d92ef *build/vignette.rds
 06fefdf3ce187d4a06daf058ddb1cb17 *inst/doc/converting.R
 69ec735d6930587ab338627785dda435 *inst/doc/converting.Rmd
@@ -40,7 +40,7 @@ ffaa7725504227ebd87e47fa2db331e9 *inst/include/cpp11/list.hpp
 c2ea55aa906a3cc1365af2fe38ff0cd1 *inst/include/cpp11/logicals.hpp
 f221da4ab057a8f3cb158d1bf27c0132 *inst/include/cpp11/matrix.hpp
 51bf4ec5ea4a785b93fd2d159b453f74 *inst/include/cpp11/named_arg.hpp
-6c792d6344e0b7848bf5d13b33ad85fd *inst/include/cpp11/protect.hpp
+f8edde569afb4fd7c907f148b0e6c1a7 *inst/include/cpp11/protect.hpp
 10e6eaddd95577e724efdfff7869450e *inst/include/cpp11/r_bool.hpp
 699773354899003626d8a63ef87f2f1f *inst/include/cpp11/r_string.hpp
 58e237a2bb714be074987a5fae0301e5 *inst/include/cpp11/r_vector.hpp

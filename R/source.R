@@ -13,6 +13,9 @@
 #' @param env The R environment where the R wrapping functions should be defined.
 #' @param clean If `TRUE`, cleanup the files after sourcing
 #' @param quiet If 'TRUE`, do not show compiler output
+#' @param cxx_std The C++ standard to use, the `CXX_STD` make macro is set to
+#'   this value. The default value queries the `CXX_STD` environment variable, or
+#'   uses 'CXX11' if unset.
 #' @return For [cpp_source()] and `[cpp_function()]` the results of
 #'   [dyn.load()] (invisibly). For `[cpp_eval()]` the results of the evaluated
 #'   expression.
@@ -60,7 +63,7 @@
 #' }
 #' }
 #' @export
-cpp_source <- function(file, code = NULL, env = parent.frame(), clean = TRUE, quiet = TRUE) {
+cpp_source <- function(file, code = NULL, env = parent.frame(), clean = TRUE, quiet = TRUE, cxx_std = Sys.getenv("CXX_STD", "CXX11")) {
   stop_unless_installed(c("brio", "callr", "cli", "decor", "desc", "glue", "tibble", "vctrs"))
 
   dir <- tempfile()
@@ -69,18 +72,19 @@ cpp_source <- function(file, code = NULL, env = parent.frame(), clean = TRUE, qu
   dir.create(file.path(dir, "src"))
 
   if (!is.null(code)) {
-    file <- file.path(dir, "src", sprintf("code_%s.cpp", the$count))
+    file <- tempfile(pattern = "code_", fileext = ".cpp")
+    on.exit(unlink(file))
     brio::write_lines(code, file)
-    the$count <- the$count + 1L
-  } else {
-    if (!any(tools::file_ext(file) %in% c("cpp", "cc"))) {
-      stop("`file` must have a `.cpp` or `.cc` extension")
-    }
-    file.copy(file, file.path(dir, "src", basename(file)))
-    file <- file.path(dir, "src", basename(file))
+  }
+  if (!any(tools::file_ext(file) %in% c("cpp", "cc"))) {
+    stop("`file` must have a `.cpp` or `.cc` extension")
   }
 
-  package <- tools::file_path_sans_ext(basename(file))
+  new_file <- generate_cpp_name(file)
+  package <- tools::file_path_sans_ext(new_file)
+
+  file.copy(file, file.path(dir, "src", new_file))
+  file <- file.path(dir, "src", new_file)
 
   suppressWarnings(
     all_decorations <- decor::cpp_decorations(dir, is_attribute = TRUE)
@@ -90,7 +94,7 @@ cpp_source <- function(file, code = NULL, env = parent.frame(), clean = TRUE, qu
   )
   cpp_functions_definitions <- generate_cpp_functions(funs, package = package)
 
-  cpp_path <- file.path(dir, "src", "cpp11.cpp")
+  cpp_path <- file.path(dirname(file), "cpp11.cpp")
   brio::write_lines(c('#include "cpp11/declarations.hpp"', "using namespace cpp11;", cpp_functions_definitions), cpp_path)
 
   linking_to <- union(get_linking_to(all_decorations), "cpp11")
@@ -98,17 +102,21 @@ cpp_source <- function(file, code = NULL, env = parent.frame(), clean = TRUE, qu
   includes <- generate_include_paths(linking_to)
 
   if (isTRUE(clean)) {
-    on.exit(unlink(dir, recursive = TRUE))
+    on.exit(unlink(dir, recursive = TRUE), add = TRUE)
   }
 
   r_functions <- generate_r_functions(funs, package = package, use_package = TRUE)
 
-  makevars_content <- generate_makevars(includes)
+  makevars_content <- generate_makevars(includes, cxx_std)
 
   brio::write_lines(makevars_content, file.path(dir, "src", "Makevars"))
 
   source_files <- normalizePath(c(file, cpp_path), winslash = "/")
-  callr::rcmd("SHLIB", source_files, user_profile = TRUE, show = !quiet, wd = file.path(dir, "src"))
+  res <- callr::rcmd("SHLIB", source_files, user_profile = TRUE, show = !quiet, wd = file.path(dir, "src"))
+  if (res$status != 0) {
+    cat(res$stderr)
+    stop("Compilation failed.", call. = FALSE)
+  }
 
   shared_lib <- file.path(dir, "src", paste0(tools::file_path_sans_ext(basename(file)), .Platform$dynlib.ext))
 
@@ -122,6 +130,18 @@ cpp_source <- function(file, code = NULL, env = parent.frame(), clean = TRUE, qu
 the <- new.env(parent = emptyenv())
 the$count <- 0L
 
+generate_cpp_name <- function(name, loaded_dlls = c("cpp11", names(getLoadedDLLs()))) {
+  ext <- tools::file_ext(name)
+  root <- tools::file_path_sans_ext(basename(name))
+  count <- 2
+  new_name <- root
+  while(new_name %in% loaded_dlls) {
+    new_name <- sprintf("%s_%i", root, count)
+    count <- count + 1
+  }
+  sprintf("%s.%s", new_name, ext)
+}
+
 generate_include_paths <- function(packages) {
   out <- character(length(packages))
   for (i in seq_along(packages)) {
@@ -134,13 +154,13 @@ generate_include_paths <- function(packages) {
   out
 }
 
-generate_makevars <- function(includes) {
-  c("CXX_STD=CXX11", sprintf("PKG_CPPFLAGS=%s", paste0(includes, collapse = " ")))
+generate_makevars <- function(includes, cxx_std) {
+  c(sprintf("CXX_STD=%s", cxx_std), sprintf("PKG_CPPFLAGS=%s", paste0(includes, collapse = " ")))
 }
 
 #' @rdname cpp_source
 #' @export
-cpp_function <- function(code, env = parent.frame(), clean = TRUE, quiet = TRUE) {
+cpp_function <- function(code, env = parent.frame(), clean = TRUE, quiet = TRUE, cxx_std = Sys.getenv("CXX_STD", "CXX11")) {
   cpp_source(code = paste(c('#include "cpp11.hpp"',
         "using namespace cpp11;",
         "namespace writable = cpp11::writable;",
@@ -149,7 +169,8 @@ cpp_function <- function(code, env = parent.frame(), clean = TRUE, quiet = TRUE)
       collapse = "\n"),
     env = env,
     clean = clean,
-    quiet = quiet
+    quiet = quiet,
+    cxx_std = cxx_std
   )
 }
 
@@ -157,7 +178,7 @@ utils::globalVariables("f")
 
 #' @rdname cpp_source
 #' @export
-cpp_eval <- function(code, env = parent.frame(), clean = TRUE, quiet = TRUE) {
+cpp_eval <- function(code, env = parent.frame(), clean = TRUE, quiet = TRUE, cxx_std = Sys.getenv("CXX_STD", "CXX11")) {
   cpp_source(code = paste(c('#include "cpp11.hpp"',
         "using namespace cpp11;",
         "namespace writable = cpp11::writable;",
@@ -169,7 +190,9 @@ cpp_eval <- function(code, env = parent.frame(), clean = TRUE, quiet = TRUE) {
       collapse = "\n"),
     env = env,
     clean = clean,
-    quiet = quiet)
+    quiet = quiet,
+    cxx_std = cxx_std
+  )
   f()
 }
 

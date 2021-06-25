@@ -16,6 +16,8 @@
 #' @param cxx_std The C++ standard to use, the `CXX_STD` make macro is set to
 #'   this value. The default value queries the `CXX_STD` environment variable, or
 #'   uses 'CXX11' if unset.
+#' @param dir The directory to store the generated source files. `tempfile()` is
+#'   used by default. The directory will be removed if `clean` is `TRUE`.
 #' @return For [cpp_source()] and `[cpp_function()]` the results of
 #'   [dyn.load()] (invisibly). For `[cpp_eval()]` the results of the evaluated
 #'   expression.
@@ -63,13 +65,12 @@
 #' }
 #' }
 #' @export
-cpp_source <- function(file, code = NULL, env = parent.frame(), clean = TRUE, quiet = TRUE, cxx_std = Sys.getenv("CXX_STD", "CXX11")) {
+cpp_source <- function(file, code = NULL, env = parent.frame(), clean = TRUE, quiet = TRUE, cxx_std = Sys.getenv("CXX_STD", "CXX11"), dir = tempfile()) {
   stop_unless_installed(c("brio", "callr", "cli", "decor", "desc", "glue", "tibble", "vctrs"))
 
-  dir <- tempfile()
-  dir.create(dir)
-  dir.create(file.path(dir, "R"))
-  dir.create(file.path(dir, "src"))
+  dir.create(dir, showWarnings = FALSE, recursive = TRUE)
+  dir.create(file.path(dir, "R"), showWarnings = FALSE)
+  dir.create(file.path(dir, "src"), showWarnings = FALSE)
 
   if (!is.null(code)) {
     tf <- tempfile(pattern = "code_", fileext = ".cpp")
@@ -83,15 +84,30 @@ cpp_source <- function(file, code = NULL, env = parent.frame(), clean = TRUE, qu
     stop("`file` must have a `.cpp` or `.cc` extension")
   }
 
-  new_file <- generate_cpp_name(file)
-  package <- tools::file_path_sans_ext(new_file)
+  base_cpp <- (basename(file) %in% "cpp11.cpp")
 
-  file.copy(file, file.path(dir, "src", new_file))
-  file <- file.path(dir, "src", new_file)
+  if (base_cpp) {
+    name <- set_cpp_name(file)
+    package <- tools::file_path_sans_ext(name)
+  }
+  else {
+    # name and package might be different if cpp_source was called multiple times
+    name <- basename(file)
+    package <- tools::file_path_sans_ext(generate_cpp_name(file))
+  }
+
+  # file not points to another location
+  file.copy(file, file.path(dir, "src", name))
+  #change variable name to reflect this
+  file <- file.path(dir, "src", name)
+
 
   suppressWarnings(
     all_decorations <- decor::cpp_decorations(dir, is_attribute = TRUE)
   )
+
+  check_valid_attributes(all_decorations)
+
   cli_suppress(
     funs <- get_registered_functions(all_decorations, "cpp11::register")
   )
@@ -121,8 +137,8 @@ cpp_source <- function(file, code = NULL, env = parent.frame(), clean = TRUE, qu
     stop("Compilation failed.", call. = FALSE)
   }
 
-  shared_lib <- file.path(dir, "src", paste0(tools::file_path_sans_ext(basename(file)), .Platform$dynlib.ext))
 
+  shared_lib <- file.path(dir, "src", paste0(tools::file_path_sans_ext(basename(file)), .Platform$dynlib.ext))
   r_path <- file.path(dir, "R", "cpp11.R")
   brio::write_lines(r_functions, r_path)
   source(r_path, local = env)
@@ -132,6 +148,14 @@ cpp_source <- function(file, code = NULL, env = parent.frame(), clean = TRUE, qu
 
 the <- new.env(parent = emptyenv())
 the$count <- 0L
+
+set_cpp_name <- function(name) {
+  ext <- tools::file_ext(name)
+  root <- tools::file_path_sans_ext(basename(name))
+  count <- 2
+  new_name <- sprintf("%s_%i", root, count)
+  sprintf("%s.%s", new_name, ext)
+}
 
 generate_cpp_name <- function(name, loaded_dlls = c("cpp11", names(getLoadedDLLs()))) {
   ext <- tools::file_ext(name)
@@ -145,14 +169,16 @@ generate_cpp_name <- function(name, loaded_dlls = c("cpp11", names(getLoadedDLLs
   sprintf("%s.%s", new_name, ext)
 }
 
+
+
 generate_include_paths <- function(packages) {
   out <- character(length(packages))
   for (i in seq_along(packages)) {
     path <- system.file(package = packages[[i]], "include")
     if (is_windows()) {
-      path <- shQuote(utils::shortPathName(path))
+      path <- utils::shortPathName(path)
     }
-    out[[i]] <- paste0("-I", path)
+    out[[i]] <- paste0("-I", shQuote(path))
   }
   out
 }

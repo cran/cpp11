@@ -46,6 +46,8 @@ cpp_register <- function(path = ".", quiet = FALSE) {
     return(invisible(character()))
   }
 
+  check_valid_attributes(all_decorations)
+
   funs <- get_registered_functions(all_decorations, "cpp11::register", quiet)
 
   package <- desc::desc_get("Package", file = file.path(path, "DESCRIPTION"))
@@ -245,10 +247,12 @@ wrap_call <- function(name, return_type, args) {
 get_call_entries <- function(path) {
   con <- textConnection("res", local = TRUE, open = "w")
 
-  tools::package_native_routine_registration_skeleton(path,
-    con,
-    character_only = FALSE,
-    include_declarations = TRUE
+  withr::with_collate("C",
+    tools::package_native_routine_registration_skeleton(path,
+      con,
+      character_only = FALSE,
+      include_declarations = TRUE
+    )
   )
 
   close(con)
@@ -271,4 +275,23 @@ pkg_links_to_rcpp <- function(path) {
 get_cpp_register_needs <- function() {
   res <- read.dcf(system.file("DESCRIPTION", package = "cpp11"))[, "Config/Needs/cpp11/cpp_register"]
   strsplit(res, "[[:space:]]*,[[:space:]]*")[[1]]
+}
+
+check_valid_attributes <- function(decorations) {
+
+  bad_decor <- !decorations$decoration %in% c("cpp11::register", "cpp11::init")
+
+  if(any(bad_decor)) {
+    lines <- decorations$line[bad_decor]
+    file <- decorations$file[bad_decor]
+    names <- decorations$decoration[bad_decor]
+    bad_lines <- glue::glue_collapse(glue::glue("- Invalid attribute `{names}` on
+                 line {lines} in file '{file}'."), "\n")
+
+    msg <- glue::glue("cpp11 attributes must be either `cpp11::register` or `cpp11::init`:
+      {bad_lines}
+      ")
+    stop(msg, call. = FALSE)
+
+  }
 }

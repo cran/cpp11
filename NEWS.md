@@ -1,6 +1,25 @@
+# cpp11 0.3.1
+
+# cpp11 0.3.0
+
+## New functions and features
+* New `x.empty()` method to check if a vector is empty (@sbearrows, #182)
+* New `x.named()` method to check if a vector is named (@sbearrows, #186)
+* New `na()` free function to return the NA sentinels for R objects (@sbearrows, #179)
+
+## Major fixes
+* Memory no longer inadvertently leaks when move constructing vectors (#173)
+
+## minor improvements and fixes
+* Incorrectly formatted cpp11 decorators now output a more informative error message (@sbearrows, #127)
+* Generated registration code now uses C collation to avoid spurious changes from `tools::package_native_routine_registration_skeleton()` (@sbearrows, #171)
+* Makevars files which include filenames now handle spaces in paths properly (@klmr, #160)
+
 # cpp11 0.2.7
 
 * Fix a transient memory leak for functions that return values from `cpp11::unwind_protect()` and `cpp11::safe` (#154)
+* `cpp_source()` now gets an argument `dir` to allow customized temporary directory to store generated source files.
+  It makes it easier to debug C++ source files in non-package project via source mapping. (@renkun-ken, #156)
 
 # cpp11 0.2.6
 

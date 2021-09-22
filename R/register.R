@@ -4,6 +4,9 @@
 #' `.cpp`, `.h` or `.hpp` will be wrapped in generated code and registered to
 #' be called from R.
 #'
+#' Note registered functions will not be *exported* from your package unless
+#' you also add a `@export` roxygen2 directive for them.
+#'
 #' In order to use `cpp_register()` the `cli`, `decor`, `desc`, `glue`,
 #' `tibble` and `vctrs` packages must also be installed.
 #' @param path The path to the package root directory
@@ -70,7 +73,8 @@ cpp_register <- function(path = ".", quiet = FALSE) {
     cli::cli_alert_success("generated file {.file {basename(r_path)}}")
   }
 
-  call_entries <- get_call_entries(path)
+
+  call_entries <- get_call_entries(path, funs$name, package)
 
   cpp_function_registration <- glue::glue_data(funs, '    {{
     "_cpp11_{name}", (DL_FUNC) &_{package}_{name}, {n_args}}}, ',
@@ -107,6 +111,7 @@ cpp_register <- function(path = ".", quiet = FALSE) {
 
       {extra_includes}
       #include "cpp11/declarations.hpp"
+      #include <R_ext/Visibility.h>
 
       {cpp_functions_definitions}
 
@@ -114,7 +119,7 @@ cpp_register <- function(path = ".", quiet = FALSE) {
       {call_entries}
       }}
       {init$declarations}
-      extern "C" void R_init_{package}(DllInfo* dll){{
+      extern "C" attribute_visible void R_init_{package}(DllInfo* dll){{
         R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
         R_useDynamicSymbols(dll, FALSE);{init$calls}
         R_forceSymbols(dll, TRUE);
@@ -244,7 +249,7 @@ wrap_call <- function(name, return_type, args) {
   }
 }
 
-get_call_entries <- function(path) {
+get_call_entries <- function(path, names, package) {
   con <- textConnection("res", local = TRUE, open = "w")
 
   withr::with_collate("C",
@@ -258,12 +263,31 @@ get_call_entries <- function(path) {
   close(con)
 
   start <- grep("/* .Call calls */", res, fixed = TRUE)
+
   end <- grep("};", res, fixed = TRUE)
 
   if (length(start) == 0) {
     return("")
   }
-  res[seq(start, end)]
+
+  redundant <- glue::glue_collapse(glue::glue('extern SEXP _{package}_{names}'), sep = '|')
+
+  if (length(redundant) > 0) {
+    redundant <- paste0("^", redundant)
+    res <- res[!grepl(redundant, res)]
+  }
+
+  end <- grep("};", res, fixed = TRUE)
+
+  call_calls <- startsWith(res, "extern SEXP")
+
+  if(any(call_calls)) {
+    return(res[seq(start, end)])
+  }
+
+  mid <- grep("static const R_CallMethodDef CallEntries[] = {", res, fixed = TRUE)
+
+  res[seq(mid, end)]
 }
 
 pkg_links_to_rcpp <- function(path) {
@@ -277,18 +301,18 @@ get_cpp_register_needs <- function() {
   strsplit(res, "[[:space:]]*,[[:space:]]*")[[1]]
 }
 
-check_valid_attributes <- function(decorations) {
+check_valid_attributes <- function(decorations, file = decorations$file) {
 
-  bad_decor <- !decorations$decoration %in% c("cpp11::register", "cpp11::init")
+  bad_decor <- startsWith(decorations$decoration, "cpp11::") &
+    (!decorations$decoration %in% c("cpp11::register", "cpp11::init", "cpp11::linking_to"))
 
   if(any(bad_decor)) {
     lines <- decorations$line[bad_decor]
-    file <- decorations$file[bad_decor]
     names <- decorations$decoration[bad_decor]
     bad_lines <- glue::glue_collapse(glue::glue("- Invalid attribute `{names}` on
                  line {lines} in file '{file}'."), "\n")
 
-    msg <- glue::glue("cpp11 attributes must be either `cpp11::register` or `cpp11::init`:
+    msg <- glue::glue("cpp11 attributes must be one of `cpp11::register`, `cpp11::init` or `cpp11::linking_to`:
       {bad_lines}
       ")
     stop(msg, call. = FALSE)

@@ -1,6 +1,6 @@
 Package: cpp11
 Title: A C++11 Interface for R's C Interface
-Version: 0.4.0
+Version: 0.4.1
 Authors@R: 
     c(person(given = "Jim",
              family = "Hester",
@@ -34,11 +34,11 @@ Encoding: UTF-8
 RoxygenNote: 7.1.1
 SystemRequirements: C++11
 NeedsCompilation: no
-Packaged: 2021-09-21 15:22:56 UTC; jhester
+Packaged: 2021-11-03 15:19:35 UTC; jhester
 Author: Jim Hester [aut, cre] (<https://orcid.org/0000-0002-2739-7082>),
   Romain François [ctb],
   Benjamin Kietzman [ctb],
   RStudio [cph, fnd]
 Maintainer: Jim Hester <jim.hester@rstudio.com>
 Repository: CRAN
-Date/Publication: 2021-09-22 08:50:10 UTC
+Date/Publication: 2021-11-03 16:10:05 UTC

@@ -1,7 +1,7 @@
-b3defee24df1b772faeb7b29c77731be *DESCRIPTION
+48ee8ed6a5ae5ae43ad30a278a8bbf0b *DESCRIPTION
 5174dfc514f0941d2edd4b0b4c9941dd *LICENSE
 3a9298876794331325c170d77feb1164 *NAMESPACE
-efb5c4711b5dcdb1d9dd9d57941092fe *NEWS.md
+efef50e9187c790d233dd481a542259c *NEWS.md
 b4fe12876c37f8a22cde06e9701eecf0 *R/cpp11-package.R
 226e91d15c31e8053239e05b88813f5c *R/knitr.R
 41afd7ca59ec2de3dcd88b085efab99b *R/register.R
@@ -13,13 +13,13 @@ d1940a957980425e9ca4abe7332bd9d2 *R/vendor.R
 0430c893fae0637d2c1d8c75d1244f91 *build/vignette.rds
 5a16153258a8f58d60845244595c70f2 *inst/doc/FAQ.R
 d6ad43e69c99c9908046e8940e512d74 *inst/doc/FAQ.Rmd
-cef249e2fec8525a63ac0d2de73994d2 *inst/doc/FAQ.html
+6916205d6d34fa1b41d5b5d85a513852 *inst/doc/FAQ.html
 a6ff177da15857d4cc52737a66dcbf8a *inst/doc/converting.R
 caa747c1da44815ec50f3dc55187dd90 *inst/doc/converting.Rmd
 bc8bf131d4bd1bc70c20a7c9aeeac60e *inst/doc/converting.html
 3e58c0b85862756107c471e5a1378a04 *inst/doc/cpp11.R
 a6b8148087dfa1d47c06496206322ffd *inst/doc/cpp11.Rmd
-8dd43a32e02a67debb2e269160a308a1 *inst/doc/cpp11.html
+11f773e64cf1505c25d7ed51ef226e11 *inst/doc/cpp11.html
 3c9e2d06e8560272e30c98b0c827478b *inst/doc/internals.R
 394717ccab71d2c8cd85abd348ba567b *inst/doc/internals.Rmd
 cdba1b409a7b0a8b2bb17a0691386c68 *inst/doc/internals.html
@@ -53,7 +53,7 @@ aea633bcbe570c00e68486d35c7ad187 *inst/include/cpp11/raws.hpp
 8eff5dd4e380f63ebdb50936b407d741 *inst/include/fmt/core.h
 fc80debc11fb314f5f83f1bfa793a729 *inst/include/fmt/format-inl.h
 4bbcd3c6e4a7b8bcd75821d4549cc372 *inst/include/fmt/format.h
-d45423e0e7cdd7b75ad6957c144c9969 *man/cpp11-package.Rd
+8b7ce8c67f1a8a9ba4ca010396888273 *man/cpp11-package.Rd
 b2eb9fc16adf53535809395b9fbdc7e9 *man/cpp_register.Rd
 e3109b9a67cd6e05dc9743ceff1ba747 *man/cpp_source.Rd
 9447728431148999097e9893e868292b *man/cpp_vendor.Rd

@@ -71,11 +71,4 @@ inline r_bool na() {
   return NA_LOGICAL;
 }
 
-namespace traits {
-template <>
-struct get_underlying_type<r_bool> {
-  using type = int;
-};
-}  // namespace traits
-
 }  // namespace cpp11

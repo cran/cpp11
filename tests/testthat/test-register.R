@@ -208,8 +208,6 @@ describe("get_registered_functions", {
 
 describe("generate_cpp_functions", {
   it("returns the empty string if there are no functions", {
-    skip_if_not_installed("glue", "1.6.2.9000")
-
     funs <- tibble::tibble(
       file = character(),
       line = integer(),
@@ -221,7 +219,7 @@ describe("generate_cpp_functions", {
       args = list(tibble::tibble(type = character(), name = character()))
     )
 
-    expect_equal(generate_cpp_functions(funs), "")
+    expect_equal(generate_cpp_functions(funs), character())
   })
 
   it("returns the wrapped function for a single void function with no arguments", {
@@ -379,8 +377,6 @@ extern \"C\" SEXP _cpp11_bar(SEXP baz) {
 
 describe("generate_r_functions", {
   it("returns the empty string if there are no functions", {
-    skip_if_not_installed("glue", "1.6.2.9000")
-
     funs <- tibble::tibble(
       file = character(),
       line = integer(),
@@ -392,7 +388,7 @@ describe("generate_r_functions", {
       args = list()
     )
 
-    expect_equal(generate_r_functions(funs), "")
+    expect_equal(generate_r_functions(funs), character())
   })
 
   it("returns the wrapped function for a single void function with no arguments", {
@@ -717,16 +713,6 @@ extern \"C\" attribute_visible void R_init_testPkg(DllInfo* dll){
     writeLines("int foo(int x) { return x; }", file.path(p, "src", "foo.cpp"))
 
     expect_error_free(cpp_register(p))
-  })
-
-  it("accepts .cc as an alternative value for extension=", {
-    pkg <- local_package()
-    p <- pkg_path(pkg)
-    dir.create(file.path(p, "src"))
-    file.copy(test_path("single.cpp"), file.path(p, "src", "single.cc"))
-    cpp_register(p, extension = ".cc")
-
-    expect_match(list.files(file.path(p, "src")), "\\.cc$")
   })
 })
 

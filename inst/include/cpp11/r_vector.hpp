@@ -56,8 +56,6 @@ class r_vector {
   typedef T* pointer;
   typedef T& reference;
 
-  using underlying_type = typename traits::get_underlying_type<T>::type;
-
   r_vector() noexcept = default;
 
   r_vector(SEXP data);
@@ -175,7 +173,7 @@ class r_vector {
     void fill_buf(R_xlen_t pos);
 
     R_xlen_t pos_;
-    std::array<underlying_type, 64 * 64> buf_;
+    std::array<T, 64 * 64> buf_;
     R_xlen_t block_start_ = 0;
     R_xlen_t length_ = 0;
   };
@@ -195,10 +193,10 @@ class r_vector {
   SEXP data_ = R_NilValue;
   SEXP protect_ = R_NilValue;
   bool is_altrep_ = false;
-  underlying_type* data_p_ = nullptr;
+  T* data_p_ = nullptr;
   R_xlen_t length_ = 0;
 
-  static underlying_type* get_p(bool is_altrep, SEXP data);
+  static T* get_p(bool is_altrep, SEXP data);
 
   static SEXP valid_type(SEXP data);
 
@@ -218,8 +216,6 @@ class r_vector : public cpp11::r_vector<T> {
 
   // These are necessary because type names are not directly accessible in
   // template inheritance
-  using typename cpp11::r_vector<T>::underlying_type;
-
   using cpp11::r_vector<T>::data_;
   using cpp11::r_vector<T>::data_p_;
   using cpp11::r_vector<T>::is_altrep_;
@@ -232,11 +228,11 @@ class r_vector : public cpp11::r_vector<T> {
    private:
     const SEXP data_;
     const R_xlen_t index_;
-    underlying_type* const p_;
+    T* const p_;
     bool is_altrep_;
 
    public:
-    proxy(SEXP data, const R_xlen_t index, underlying_type* const p, bool is_altrep);
+    proxy(SEXP data, const R_xlen_t index, T* const p, bool is_altrep);
 
     proxy& operator=(const T& rhs);
     proxy& operator+=(const T& rhs);
@@ -576,9 +572,9 @@ inline typename cpp11::r_vector<T>::const_iterator cpp11::r_vector<T>::find(
 template <typename T>
 inline T r_vector<T>::const_iterator::operator*() const {
   if (data_->is_altrep()) {
-    return static_cast<T>(buf_[pos_ - block_start_]);
+    return buf_[pos_ - block_start_];
   } else {
-    return static_cast<T>(data_->data_p_[pos_]);
+    return data_->data_p_[pos_];
   }
 }
 
@@ -602,17 +598,13 @@ inline T r_vector<T>::operator[](size_type pos) const {
 namespace writable {
 
 template <typename T>
-r_vector<T>::proxy::proxy(SEXP data, const R_xlen_t index,
-                          typename r_vector<T>::underlying_type* const p, bool is_altrep)
+r_vector<T>::proxy::proxy(SEXP data, const R_xlen_t index, T* const p, bool is_altrep)
     : data_(data), index_(index), p_(p), is_altrep_(is_altrep) {}
 
 template <typename T>
 inline typename r_vector<T>::proxy r_vector<T>::iterator::operator*() const {
   if (data_.is_altrep()) {
-    return proxy(
-        data_.data(), pos_,
-        const_cast<typename r_vector<T>::underlying_type*>(&buf_[pos_ - block_start_]),
-        true);
+    return proxy(data_.data(), pos_, const_cast<T*>(&buf_[pos_ - block_start_]), true);
   } else {
     return proxy(data_.data(), pos_,
                  data_.data_p_ != nullptr ? &data_.data_p_[pos_] : nullptr, false);

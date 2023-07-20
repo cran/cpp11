@@ -18,19 +18,17 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Davis Vaughan \email{davis@posit.co} (\href{https://orcid.org/0000-0003-4777-038X}{ORCID})
+\strong{Maintainer}: Romain François \email{romain@rstudio.com}
 
 Authors:
 \itemize{
-  \item Jennifer Bryan \email{jenny@posit.co} (\href{https://orcid.org/0000-0002-6983-2759}{ORCID})
   \item Jim Hester (\href{https://orcid.org/0000-0002-2739-7082}{ORCID})
-  \item Romain François (\href{https://orcid.org/0000-0002-2444-4226}{ORCID})
 }
 
 Other contributors:
 \itemize{
   \item Benjamin Kietzman [contributor]
-  \item Posit Software, PBC [copyright holder, funder]
+  \item RStudio [copyright holder, funder]
 }
 
 }

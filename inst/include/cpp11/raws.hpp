@@ -16,13 +16,6 @@
 
 namespace cpp11 {
 
-namespace traits {
-template <>
-struct get_underlying_type<uint8_t> {
-  using type = Rbyte;
-};
-}  // namespace traits
-
 template <>
 inline SEXP r_vector<uint8_t>::valid_type(SEXP data) {
   if (data == nullptr) {
@@ -41,12 +34,11 @@ inline uint8_t r_vector<uint8_t>::operator[](const R_xlen_t pos) const {
 }
 
 template <>
-inline typename r_vector<uint8_t>::underlying_type* r_vector<uint8_t>::get_p(
-    bool is_altrep, SEXP data) {
+inline uint8_t* r_vector<uint8_t>::get_p(bool is_altrep, SEXP data) {
   if (is_altrep) {
     return nullptr;
   } else {
-    return RAW(data);
+    return reinterpret_cast<uint8_t*>(RAW(data));
   }
 }
 
@@ -54,7 +46,8 @@ template <>
 inline void r_vector<uint8_t>::const_iterator::fill_buf(R_xlen_t pos) {
   using namespace cpp11::literals;
   length_ = std::min(64_xl, data_->size() - pos);
-  unwind_protect([&] { RAW_GET_REGION(data_->data_, pos, length_, buf_.data()); });
+  unwind_protect(
+      [&] { RAW_GET_REGION(data_->data_, pos, length_, (uint8_t*)buf_.data()); });
   block_start_ = pos;
 }
 
@@ -131,7 +124,7 @@ inline void r_vector<uint8_t>::reserve(R_xlen_t new_capacity) {
   protect_ = preserved.insert(data_);
   preserved.release(old_protect);
 
-  data_p_ = RAW(data_);
+  data_p_ = reinterpret_cast<uint8_t*>(RAW(data_));
   capacity_ = new_capacity;
 }
 

@@ -54,34 +54,20 @@ inline void set_option(SEXP name, SEXP value) {
   SETCAR(opt, value);
 }
 
-inline Rboolean* setup_should_unwind_protect() {
+inline Rboolean& get_should_unwind_protect() {
   SEXP should_unwind_protect_sym = Rf_install("cpp11_should_unwind_protect");
   SEXP should_unwind_protect_sexp = Rf_GetOption1(should_unwind_protect_sym);
-
   if (should_unwind_protect_sexp == R_NilValue) {
-    // Allocate and initialize once, then let R manage it.
-    // That makes this a shared global across all compilation units.
     should_unwind_protect_sexp = PROTECT(Rf_allocVector(LGLSXP, 1));
-    SET_LOGICAL_ELT(should_unwind_protect_sexp, 0, TRUE);
     detail::set_option(should_unwind_protect_sym, should_unwind_protect_sexp);
     UNPROTECT(1);
   }
 
-  return reinterpret_cast<Rboolean*>(LOGICAL(should_unwind_protect_sexp));
-}
+  Rboolean* should_unwind_protect =
+      reinterpret_cast<Rboolean*>(LOGICAL(should_unwind_protect_sexp));
+  should_unwind_protect[0] = TRUE;
 
-inline Rboolean* access_should_unwind_protect() {
-  // Setup is run once per compilation unit, but all compilation units
-  // share the same global option, so each compilation unit's static pointer
-  // will point to the same object.
-  static Rboolean* p_should_unwind_protect = setup_should_unwind_protect();
-  return p_should_unwind_protect;
-}
-
-inline Rboolean get_should_unwind_protect() { return *access_should_unwind_protect(); }
-
-inline void set_should_unwind_protect(Rboolean should_unwind_protect) {
-  *access_should_unwind_protect() = should_unwind_protect;
+  return should_unwind_protect[0];
 }
 
 }  // namespace detail
@@ -94,11 +80,12 @@ inline void set_should_unwind_protect(Rboolean should_unwind_protect) {
 template <typename Fun, typename = typename std::enable_if<std::is_same<
                             decltype(std::declval<Fun&&>()()), SEXP>::value>::type>
 SEXP unwind_protect(Fun&& code) {
-  if (detail::get_should_unwind_protect() == FALSE) {
+  static auto should_unwind_protect = detail::get_should_unwind_protect();
+  if (should_unwind_protect == FALSE) {
     return std::forward<Fun>(code)();
   }
 
-  detail::set_should_unwind_protect(FALSE);
+  should_unwind_protect = FALSE;
 
   static SEXP token = [] {
     SEXP res = R_MakeUnwindCont();
@@ -108,7 +95,7 @@ SEXP unwind_protect(Fun&& code) {
 
   std::jmp_buf jmpbuf;
   if (setjmp(jmpbuf)) {
-    detail::set_should_unwind_protect(TRUE);
+    should_unwind_protect = TRUE;
     throw unwind_exception(token);
   }
 
@@ -133,7 +120,7 @@ SEXP unwind_protect(Fun&& code) {
   // unset it here before returning the value ourselves.
   SETCAR(token, R_NilValue);
 
-  detail::set_should_unwind_protect(TRUE);
+  should_unwind_protect = TRUE;
 
   return res;
 }
@@ -328,18 +315,16 @@ static struct {
 
     static SEXP list_ = get_preserve_list();
 
-    // Get references to head, tail of the precious list.
-    SEXP head = list_;
-    SEXP tail = CDR(list_);
+    // Add a new cell that points to the previous end.
+    SEXP cell = PROTECT(Rf_cons(list_, CDR(list_)));
 
-    // Add a new cell that points to the current head + tail.
-    SEXP cell = PROTECT(Rf_cons(head, tail));
     SET_TAG(cell, obj);
 
-    // Update the head + tail to point at the newly-created cell,
-    // effectively inserting that cell between the current head + tail.
-    SETCDR(head, cell);
-    SETCAR(tail, cell);
+    SETCDR(list_, cell);
+
+    if (CDR(cell) != R_NilValue) {
+      SETCAR(CDR(cell), cell);
+    }
 
     UNPROTECT(2);
 
@@ -367,25 +352,29 @@ static struct {
 #endif
   }
 
-  void release(SEXP cell) {
-    if (cell == R_NilValue) {
+  void release(SEXP token) {
+    if (token == R_NilValue) {
       return;
     }
 
 #ifdef CPP11_USE_PRESERVE_OBJECT
-    R_ReleaseObject(cell);
+    R_ReleaseObject(token);
     return;
 #endif
 
-    // Get a reference to the cells before and after the token.
-    SEXP lhs = CAR(cell);
-    SEXP rhs = CDR(cell);
+    SEXP before = CAR(token);
 
-    // Remove the cell from the precious list -- effectively, we do this
-    // by updating the 'lhs' and 'rhs' references to point at each-other,
-    // effectively removing any references to the cell in the pairlist.
-    SETCDR(lhs, rhs);
-    SETCAR(rhs, lhs);
+    SEXP after = CDR(token);
+
+    if (before == R_NilValue && after == R_NilValue) {
+      Rf_error("should never happen");
+    }
+
+    SETCDR(before, after);
+
+    if (after != R_NilValue) {
+      SETCAR(after, before);
+    }
   }
 
  private:
@@ -425,24 +414,18 @@ static struct {
 
   static SEXP get_preserve_list() {
     static SEXP preserve_list = R_NilValue;
+
     if (TYPEOF(preserve_list) != LISTSXP) {
       preserve_list = get_preserve_xptr_addr();
       if (TYPEOF(preserve_list) != LISTSXP) {
-        preserve_list = Rf_cons(R_NilValue, Rf_cons(R_NilValue, R_NilValue));
+        preserve_list = Rf_cons(R_NilValue, R_NilValue);
         R_PreserveObject(preserve_list);
         set_preserve_xptr(preserve_list);
       }
-
-      // NOTE: Because older versions of cpp11 (<= 0.4.2) initialized the
-      // precious_list with a single cell, we might need to detect and update
-      // an existing empty precious list so that we have a second cell following.
-      if (CDR(preserve_list) == R_NilValue)
-        SETCDR(preserve_list, Rf_cons(R_NilValue, R_NilValue));
     }
 
     return preserve_list;
   }
-
-} preserved;
-
+}  // namespace cpp11
+preserved;
 }  // namespace cpp11

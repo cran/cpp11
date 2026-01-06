@@ -24,29 +24,9 @@ class data_frame : public list {
 
   friend class writable::data_frame;
 
-  /* we cannot use Rf_getAttrib because it has a special case for c(NA, -n) and creates
-   * the full vector */
-  static SEXP get_attrib0(SEXP x, SEXP sym) {
-    for (SEXP attr = ATTRIB(x); attr != R_NilValue; attr = CDR(attr)) {
-      if (TAG(attr) == sym) {
-        return CAR(attr);
-      }
-    }
-
-    return R_NilValue;
-  }
-
   static R_xlen_t calc_nrow(SEXP x) {
-    auto nms = get_attrib0(x, R_RowNamesSymbol);
-    bool has_short_rownames =
-        (Rf_isInteger(nms) && Rf_xlength(nms) == 2 && INTEGER(nms)[0] == NA_INTEGER);
-    if (has_short_rownames) {
-      return static_cast<R_xlen_t>(abs(INTEGER(nms)[1]));
-    }
-
-    if (!Rf_isNull(nms)) {
-      return Rf_xlength(nms);
-    }
+    if (Rf_isDataFrame(x))
+	return R_nrow(x);
 
     if (Rf_xlength(x) == 0) {
       return 0;

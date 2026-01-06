@@ -49,7 +49,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +60,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -427,12 +427,7 @@ R:</p>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="st">}&#39;</span>)</span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># add works like a regular R function</span></span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>add</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; function (x, y, z) </span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; {</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt;     .Call(&quot;_code_679540f4c4f1_add&quot;, x, y, z, PACKAGE = &quot;code_679540f4c4f1&quot;)</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; }</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="fu">add</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; [1] 6</span></span></code></pre></div>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">add</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span></code></pre></div>
 <p>When you run the above code, cpp11 will compile the C++ code and
 construct an R function that connects to the compiled C++ function.
 There’s a lot going on underneath the hood but cpp11 takes care of all
@@ -575,13 +570,7 @@ while <code>sum_r()</code> is several orders of magnitude slower.</p>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">sum</span>(x),</span>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">sum_cpp</span>(x),</span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="fu">sum_r</span>(x)</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 6</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt;   expression      min   median `itr/sec` mem_alloc `gc/sec`</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt;   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; 1 sum(x)       1.64µs   1.89µs   485202.        0B        0</span></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; 2 sum_cpp(x)   1.48µs   1.64µs   545707.        0B        0</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; 3 sum_r(x)    17.26µs  17.38µs    56039.      18KB        0</span></span></code></pre></div>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span></code></pre></div>
 </div>
 <div id="vector-input-vector-output" class="section level3">
 <h3>Vector input, vector output</h3>
@@ -621,12 +610,7 @@ going to be fast.</p>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>bench<span class="sc">::</span><span class="fu">mark</span>(</span>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="fu">pdist_r</span>(<span class="fl">0.5</span>, y),</span>
 <span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="fu">pdist_cpp</span>(<span class="fl">0.5</span>, y)</span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 6</span></span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt;   expression             min   median `itr/sec` mem_alloc `gc/sec`</span></span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt;   &lt;bch:expr&gt;        &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span></span>
-<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; 1 pdist_r(0.5, y)     1.98ms   2.06ms      470.    7.63MB     224.</span></span>
-<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt; 2 pdist_cpp(0.5, y) 902.21µs 944.43µs     1031.    7.63MB     258.</span></span></code></pre></div>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span></code></pre></div>
 <p>On my computer, it takes around 5 ms with a 1 million element
 <code>y</code> vector. The C++ function is about 2.5 times faster, ~2
 ms, but assuming it took you 10 minutes to write the C++ function, you’d
@@ -809,8 +793,7 @@ object really is a linear model.</p>
 <span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a>  <span class="cf">return</span> err <span class="op">/</span> n<span class="op">;</span></span>
 <span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> wt, <span class="at">data =</span> mtcars)</span>
-<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="fu">mpe</span>(mod)</span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt; [1] -0.01541615</span></span></code></pre></div>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="fu">mpe</span>(mod)</span></code></pre></div>
 </div>
 <div id="functions-cpp11" class="section level3">
 <h3>Functions</h3>
@@ -829,15 +812,13 @@ code.</p>
 <span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a>  <span class="cf">return</span> f<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
 <span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">call_with_one</span>(<span class="cf">function</span>(x) x <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="co">#&gt; [1] 2</span></span>
-<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="fu">call_with_one</span>(paste)</span>
-<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co">#&gt; [1] &quot;1&quot;</span></span></code></pre></div>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="fu">call_with_one</span>(paste)</span></code></pre></div>
 <p>Calling R functions with positional arguments is obvious:</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>f<span class="op">(</span><span class="st">&quot;y&quot;</span><span class="op">,</span> <span class="dv">1</span><span class="op">);</span></span></code></pre></div>
 <p>But you need a special syntax for named arguments:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="kw">using</span> <span class="kw">namespace</span> cpp11<span class="op">::</span>literals<span class="op">;</span></span>
 <span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>f<span class="op">(</span><span class="st">&quot;x&quot;_nm</span> <span class="op">=</span> <span class="st">&quot;y&quot;</span><span class="op">,</span> <span class="st">&quot;value&quot;_nm</span> <span class="op">=</span> <span class="dv">1</span><span class="op">);</span></span></code></pre></div>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>f<span class="op">(</span><span class="st">&quot;x&quot;</span><span class="op">_nm</span> <span class="op">=</span> <span class="st">&quot;y&quot;</span><span class="op">,</span> <span class="st">&quot;value&quot;</span><span class="op">_nm</span> <span class="op">=</span> <span class="dv">1</span><span class="op">);</span></span></code></pre></div>
 </div>
 <div id="attributes" class="section level3">
 <h3>Attributes</h3>
@@ -888,12 +869,7 @@ out what any operation does.</p>
 <span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a>  <span class="dt">double</span> num_s <span class="op">=</span> NA_REAL<span class="op">;</span></span>
 <span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a>  <span class="cf">return</span> writable<span class="op">::</span>list<span class="op">({</span>as_sexp<span class="op">(</span>int_s<span class="op">),</span> as_sexp<span class="op">(</span>chr_s<span class="op">),</span> as_sexp<span class="op">(</span>lgl_s<span class="op">),</span> as_sexp<span class="op">(</span>num_s<span class="op">)});</span></span>
 <span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">scalar_missings</span>())</span>
-<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="co">#&gt; List of 4</span></span>
-<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a><span class="co">#&gt;  $ : int NA</span></span>
-<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a><span class="co">#&gt;  $ : chr NA</span></span>
-<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a><span class="co">#&gt;  $ : logi TRUE</span></span>
-<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a><span class="co">#&gt;  $ : num NA</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">scalar_missings</span>())</span></code></pre></div>
 <p>With the exception of <code>bool</code>, things look pretty good
 here: all of the missing values have been preserved. However, as we’ll
 see in the following sections, things are not quite as straightforward
@@ -916,30 +892,20 @@ special type of IEEE 754 floating point number NaN. So any logical
 expression that involves a NaN (or in C++, NAN) always evaluates as
 FALSE:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN == 1&quot;</span>)</span>
-<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span>
-<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN &lt; 1&quot;</span>)</span>
-<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span>
-<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN &gt; 1&quot;</span>)</span>
-<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span>
-<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN == NAN&quot;</span>)</span>
-<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN &lt; 1&quot;</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN &gt; 1&quot;</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN == NAN&quot;</span>)</span></code></pre></div>
 <p>(Here I’m using <code>cpp_eval()</code> which allows you to see the
 result of running a single C++ expression, making it excellent for this
 sort of interactive experimentation.) But be careful when combining them
 with Boolean values:</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN &amp;&amp; TRUE&quot;</span>)</span>
-<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span>
-<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN || FALSE&quot;</span>)</span>
-<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN || FALSE&quot;</span>)</span></code></pre></div>
 <p>However, in numeric contexts NaNs will propagate NAs:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN + 1&quot;</span>)</span>
-<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a><span class="co">#&gt; [1] NaN</span></span>
-<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN - 1&quot;</span>)</span>
-<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a><span class="co">#&gt; [1] NaN</span></span>
-<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN / 1&quot;</span>)</span>
-<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a><span class="co">#&gt; [1] NaN</span></span>
-<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN * 1&quot;</span>)</span>
-<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a><span class="co">#&gt; [1] NaN</span></span></code></pre></div>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN - 1&quot;</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN / 1&quot;</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a><span class="fu">cpp_eval</span>(<span class="st">&quot;NAN * 1&quot;</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="strings" class="section level3">
@@ -975,12 +941,7 @@ vector, <code>NA_REAL</code>, <code>NA_INTEGER</code>,
 <span id="cb29-11"><a href="#cb29-11" tabindex="-1"></a>    writable<span class="op">::</span>strings<span class="op">({</span>NA_STRING<span class="op">})</span></span>
 <span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a>  <span class="op">});</span></span>
 <span id="cb29-13"><a href="#cb29-13" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">missing_sampler</span>())</span>
-<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a><span class="co">#&gt; List of 4</span></span>
-<span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a><span class="co">#&gt;  $ : num NA</span></span>
-<span id="cb30-4"><a href="#cb30-4" tabindex="-1"></a><span class="co">#&gt;  $ : int NA</span></span>
-<span id="cb30-5"><a href="#cb30-5" tabindex="-1"></a><span class="co">#&gt;  $ : logi NA</span></span>
-<span id="cb30-6"><a href="#cb30-6" tabindex="-1"></a><span class="co">#&gt;  $ : chr NA</span></span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">missing_sampler</span>())</span></code></pre></div>
 </div>
 <div id="exercises-1" class="section level3">
 <h3>Exercises</h3>
@@ -1197,8 +1158,8 @@ the corresponding length to 1.</p>
 <span id="cb35-25"><a href="#cb35-25" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb35-26"><a href="#cb35-26" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb35-27"><a href="#cb35-27" tabindex="-1"></a>  <span class="cf">return</span> writable<span class="op">::</span>list<span class="op">({</span></span>
-<span id="cb35-28"><a href="#cb35-28" tabindex="-1"></a>    <span class="st">&quot;lengths&quot;_nm</span> <span class="op">=</span> lengths<span class="op">,</span></span>
-<span id="cb35-29"><a href="#cb35-29" tabindex="-1"></a>    <span class="st">&quot;values&quot;_nm</span> <span class="op">=</span> values</span>
+<span id="cb35-28"><a href="#cb35-28" tabindex="-1"></a>    <span class="st">&quot;lengths&quot;</span><span class="op">_nm</span> <span class="op">=</span> lengths<span class="op">,</span></span>
+<span id="cb35-29"><a href="#cb35-29" tabindex="-1"></a>    <span class="st">&quot;values&quot;</span><span class="op">_nm</span> <span class="op">=</span> values</span>
 <span id="cb35-30"><a href="#cb35-30" tabindex="-1"></a>  <span class="op">});</span></span>
 <span id="cb35-31"><a href="#cb35-31" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>(An alternative implementation would be to replace <code>i</code>
@@ -1362,12 +1323,7 @@ running the loops in C++:</p>
 <span id="cb39-9"><a href="#cb39-9" tabindex="-1"></a>  },</span>
 <span id="cb39-10"><a href="#cb39-10" tabindex="-1"></a>  <span class="at">check =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb39-11"><a href="#cb39-11" tabindex="-1"></a>  <span class="at">relative =</span> <span class="cn">TRUE</span></span>
-<span id="cb39-12"><a href="#cb39-12" tabindex="-1"></a>)</span>
-<span id="cb39-13"><a href="#cb39-13" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 6</span></span>
-<span id="cb39-14"><a href="#cb39-14" tabindex="-1"></a><span class="co">#&gt;   expression   min median `itr/sec` mem_alloc `gc/sec`</span></span>
-<span id="cb39-15"><a href="#cb39-15" tabindex="-1"></a><span class="co">#&gt;   &lt;bch:expr&gt; &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;</span></span>
-<span id="cb39-16"><a href="#cb39-16" tabindex="-1"></a><span class="co">#&gt; 1 r           15.0   14.9       1        32.3      Inf</span></span>
-<span id="cb39-17"><a href="#cb39-17" tabindex="-1"></a><span class="co">#&gt; 2 cpp          1      1        15.0       1        NaN</span></span></code></pre></div>
+<span id="cb39-12"><a href="#cb39-12" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div id="r-vectorisation-versus-c-vectorisation" class="section level3">
 <h3>R vectorisation versus C++ vectorisation</h3>
@@ -1456,13 +1412,7 @@ Finally, we can benchmark our three approaches:</p>
 <span id="cb45-2"><a href="#cb45-2" tabindex="-1"></a>  <span class="at">vacc1 =</span> <span class="fu">vacc1</span>(age, female, ily),</span>
 <span id="cb45-3"><a href="#cb45-3" tabindex="-1"></a>  <span class="at">vacc2 =</span> <span class="fu">vacc2</span>(age, female, ily),</span>
 <span id="cb45-4"><a href="#cb45-4" tabindex="-1"></a>  <span class="at">vacc3 =</span> <span class="fu">vacc3</span>(age, female, ily)</span>
-<span id="cb45-5"><a href="#cb45-5" tabindex="-1"></a>)</span>
-<span id="cb45-6"><a href="#cb45-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 6</span></span>
-<span id="cb45-7"><a href="#cb45-7" tabindex="-1"></a><span class="co">#&gt;   expression      min   median `itr/sec` mem_alloc `gc/sec`</span></span>
-<span id="cb45-8"><a href="#cb45-8" tabindex="-1"></a><span class="co">#&gt;   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span></span>
-<span id="cb45-9"><a href="#cb45-9" tabindex="-1"></a><span class="co">#&gt; 1 vacc1      719.26µs 776.99µs     1238.    7.86KB     61.7</span></span>
-<span id="cb45-10"><a href="#cb45-10" tabindex="-1"></a><span class="co">#&gt; 2 vacc2        24.6µs   30.3µs    31798.  146.68KB     44.6</span></span>
-<span id="cb45-11"><a href="#cb45-11" tabindex="-1"></a><span class="co">#&gt; 3 vacc3        4.39µs   4.88µs   191256.   14.02KB     19.1</span></span></code></pre></div>
+<span id="cb45-5"><a href="#cb45-5" tabindex="-1"></a>)</span></code></pre></div>
 <p>Not surprisingly, our original approach with loops is very slow.
 Vectorising in R gives a huge speedup, and we can eke out even more
 performance (about ten times) with the C++ loop. I was a little

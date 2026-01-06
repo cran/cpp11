@@ -1,6 +1,6 @@
 Package: cpp11
 Title: A C++11 Interface for R's C Interface
-Version: 0.5.2
+Version: 0.5.2-2
 Authors@R: 
     c(
       person("Davis", "Vaughan", email = "davis@posit.co", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-4777-038X")),
@@ -29,12 +29,13 @@ Config/Needs/cpp11/cpp_register: brio, cli, decor, desc, glue, tibble,
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2025-03-03 22:24:28 UTC; davis
-Author: Davis Vaughan [aut, cre] (<https://orcid.org/0000-0003-4777-038X>),
-  Jim Hester [aut] (<https://orcid.org/0000-0002-2739-7082>),
-  Romain François [aut] (<https://orcid.org/0000-0002-2444-4226>),
+Packaged: 2026-01-05 18:39:43 UTC; luke
+Author: Davis Vaughan [aut, cre] (ORCID:
+    <https://orcid.org/0000-0003-4777-038X>),
+  Jim Hester [aut] (ORCID: <https://orcid.org/0000-0002-2739-7082>),
+  Romain François [aut] (ORCID: <https://orcid.org/0000-0002-2444-4226>),
   Benjamin Kietzman [ctb],
   Posit Software, PBC [cph, fnd]
 Maintainer: Davis Vaughan <davis@posit.co>
 Repository: CRAN
-Date/Publication: 2025-03-03 23:20:02 UTC
+Date/Publication: 2026-01-06 12:36:07 UTC

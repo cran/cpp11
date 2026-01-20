@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -486,7 +487,7 @@ function with a trailing <code>_</code>.</p>
 <div id="how-do-i-return-a-cpp11writablelogicals-object-with-only-a-false-value" class="section level4">
 <h4>7. How do I return a <code>cpp11::writable::logicals</code> object
 with only a <code>FALSE</code> value?</h4>
-<p>You need to use <a href="https://en.cppreference.com/w/cpp/language/list_initialization">list
+<p>You need to use <a href="https://en.cppreference.com/w/cpp/language/list_initialization.html">list
 initialization</a> with <code>{}</code> to create the object.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cpp11.hpp&gt;</span></span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
@@ -646,10 +647,10 @@ this.</p>
 <span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="dt">L</span>, <span class="dv">2</span><span class="dt">L</span>, <span class="dv">3</span><span class="dt">L</span>, <span class="dv">4</span><span class="dt">L</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="fu">.Internal</span>(<span class="fu">inspect</span>(x))</span>
-<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a><span class="co">#&gt; @31271388 13 INTSXP g0c2 [REF(2)] (len=4, tl=0) 1,2,3,4</span></span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a><span class="co">#&gt; @10e812748 13 INTSXP g0c2 [REF(2)] (len=4, tl=0) 1,2,3,4</span></span>
 <span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="fu">add_one</span>(x)</span>
 <span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="fu">.Internal</span>(<span class="fu">inspect</span>(x))</span>
-<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="co">#&gt; @31271388 13 INTSXP g0c2 [REF(5)] (len=4, tl=0) 2,3,4,5</span></span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="co">#&gt; @10e812748 13 INTSXP g0c2 [REF(5)] (len=4, tl=0) 2,3,4,5</span></span>
 <span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a>x</span>
 <span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="co">#&gt; [1] 2 3 4 5</span></span></code></pre></div>
 </div>
@@ -880,8 +881,8 @@ native R API:</p>
 <span id="cb27-10"><a href="#cb27-10" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 6</span></span>
 <span id="cb27-11"><a href="#cb27-11" tabindex="-1"></a><span class="co">#&gt;   expression                 min   median `itr/sec` mem_alloc `gc/sec`</span></span>
 <span id="cb27-12"><a href="#cb27-12" tabindex="-1"></a><span class="co">#&gt;   &lt;bch:expr&gt;            &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span></span>
-<span id="cb27-13"><a href="#cb27-13" tabindex="-1"></a><span class="co">#&gt; 1 test_extract_cpp11(x)  32.98ms  34.68ms      28.0        NA     41.1</span></span>
-<span id="cb27-14"><a href="#cb27-14" tabindex="-1"></a><span class="co">#&gt; 2 test_extract_r_api(x)   1.88ms   1.88ms     526.         NA      0</span></span></code></pre></div>
+<span id="cb27-13"><a href="#cb27-13" tabindex="-1"></a><span class="co">#&gt; 1 test_extract_cpp11(x)  24.33ms   25.2ms      38.4        0B     53.7</span></span>
+<span id="cb27-14"><a href="#cb27-14" tabindex="-1"></a><span class="co">#&gt; 2 test_extract_r_api(x)   1.12ms   1.15ms     863.         0B      0</span></span></code></pre></div>
 <p>We plan to improve on this in the future, but for now this is one of
 the only places where we feel it is reasonable to call
 <code>unwind_protect()</code> manually.</p>

@@ -1,3 +1,11 @@
+# cpp11 0.5.3
+
+* Removed non-API usage of `ATTRIB()` (#481).
+
+* Improved hygiene around using C++ specific C compatibility headers (i.e. by using `<cstring>` rather than `<string.h>` and `<cstddef>` rather than `<stddef.h>`) (#454, @MichaelChirico).
+
+* Fixed an rchk issue related to `std::initializer_list<named_arg>` (#457, @pachadotdev).
+
 # cpp11 0.5.2
 
 * Fixed an issue related to `-Wdeprecated-literal-operator` (#447, @andrjohns).
@@ -5,12 +13,12 @@
 # cpp11 0.5.1
 
 * cpp11 now requires R >=4.0.0, in line with the
-  [tidyverse version policy](https://www.tidyverse.org/blog/2019/04/r-version-support/) (#411).
+  [tidyverse version policy](https://tidyverse.org/blog/2019/04/r-version-support/) (#411).
 
 * Because cpp11 now requires R >=4.0.0, a number of previously optional tools
   are now always available, allowing us to remove some dead code. In
   particular:
-  
+
   * `R_UnwindProtect()` is always available, so the defines `HAS_UNWIND_PROTECT`
     and `CPP11_UNWIND` are no longer useful.
 
